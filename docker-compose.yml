@@ -1,0 +1,39 @@
+services:
+  # Banco de Dados
+  postgres:
+    image: postgres:15-alpine
+    container_name: soil-db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: soil_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Fila Redis
+  redis:
+    image: redis:alpine
+    container_name: soil-redis
+    ports:
+      - "6379:6379"
+
+  # Backend NestJS
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: soil-api
+    environment:
+      DATABASE_URL: "postgresql://user:password@postgres:5432/soil_db?schema=public"
+      REDIS_HOST: "redis"
+      REDIS_PORT: 6379
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+      - redis
+
+volumes:
+  postgres_data:

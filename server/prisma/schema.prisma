@@ -1,0 +1,100 @@
+// Isso avisa ao Prisma para gerar o código TypeScript que usaremos no NestJS
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Isso diz ao Prisma que estamos usando o PostgreSQL e onde encontrar a senha
+datasource db {
+  provider = "postgresql"
+}
+
+// O termo "model" representa uma Tabela no banco de dados.
+
+model Farm {
+  // @id diz que esta coluna é a chave principal da tabela.
+  // @default(uuid()) faz o Prisma gerar um identificador único de texto automaticamente (ex: "f1a2b3...").
+  id        String  @id @default(uuid())
+  name      String
+  latitude  Float   // Float significa um número com casas decimais
+  longitude Float
+  
+  // Isso cria a relação. Significa "Uma fazenda pode ter muitos pivôs".
+  // Os colchetes [] indicam que é uma lista.
+  pivots    Pivot[] 
+}
+
+model Pivot {
+  id         String  @id @default(uuid())
+  
+  // Aqui estamos dizendo a qual fazenda este pivô pertence.
+  farmId     String
+  // O @relation "amarra" o farmId deste pivô com o id lá da tabela Farm.
+  farm       Farm    @relation(fields: [farmId], references: [id])
+  
+  name       String
+  latitude   Float
+  longitude  Float
+  status     Json    // O Prisma suporta campos JSON nativamente no PostgreSQL
+  bladeAt100 Float
+  
+  // Um pivô pode ter muitos estados registrados ao longo do tempo.
+  states     State[] 
+}
+
+model State {
+  id           String   @id @default(uuid())
+  
+  pivotId      String
+  pivot        Pivot    @relation(fields: [pivotId], references: [id])
+  
+  timestamp    DateTime // Um tipo de dado específico para guardar data e hora
+  isOn         Boolean  // Boolean significa Verdadeiro (True) ou Falso (False)
+  direction    String
+  isIrrigating Boolean
+  
+  // Um estado pode ter muitos ciclos registrados enquanto está ativo.
+  cycles       Cycle[]  
+}
+
+// Usamos o nome "Cycle" no singular, pois no Prisma cada "model" 
+// representa uma única linha (um único ciclo) da tabela.
+model Cycle {
+  id            String   @id @default(uuid())
+  
+  stateId       String
+  state         State    @relation(fields: [stateId], references: [id])
+  
+  timestamp     DateTime
+  angle         Float
+  percentimeter Float
+}
+
+// Definimos as opções fixas de "Roles" (Papeis de acesso) que um usuário pode ter.
+enum Role {
+  ADMIN       // Acesso total
+  OPERATOR    // Pode ligar/desligar pivôs
+  VIEWER      // Só pode visualizar o dashboard
+}
+
+// Criamos a tabela de Usuários
+model User {
+  id        String   @id @default(uuid())
+  
+  // O email será usado para o login. 
+  // O @unique garante que não existam duas contas com o mesmo email.
+  email     String   @unique
+  
+  name      String
+  
+  // Aqui guardaremos a senha criptografada
+  password  String   
+  
+  // Usamos o Enum que criamos lá em cima. 
+  // O @default diz que, se ninguém avisar qual é a permissão ao criar a conta, 
+  // ela será "VIEWER" (apenas visualizador) por segurança.
+  role      Role     @default(VIEWER) 
+  
+  // Campos úteis para auditoria: saber quando a conta foi criada e atualizada
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
