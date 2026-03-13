@@ -81,51 +81,51 @@ Serão necessárias, no mínimo, as seguintes tabelas para gerenciar fazendas, p
 
 Esta tabela registrará as informações das fazendas onde os pivôs estão localizados.
 
-| Campo | Tipo | Descrição | Exemplo |
-| :--- | :--- | :--- | :--- |
-| `id` | `UUID` | Identificador único da fazenda. | `f1a2b3c4-d5e6...` |
-| `name` | `String` | Nome da fazenda. | `Fazenda Esperança` |
-| `latitude` | `Float` | Latitude da localização da fazenda. | `-23.5505` |
-| `longitude` | `Float` | Longitude da localização da fazenda. | `-46.6333` |
+| Campo       | Tipo     | Descrição                            | Exemplo             |
+| :---------- | :------- | :----------------------------------- | :------------------ |
+| `id`        | `UUID`   | Identificador único da fazenda.      | `f1a2b3c4-d5e6...`  |
+| `name`      | `String` | Nome da fazenda.                     | `Fazenda Esperança` |
+| `latitude`  | `Float`  | Latitude da localização da fazenda.  | `-23.5505`          |
+| `longitude` | `Float`  | Longitude da localização da fazenda. | `-46.6333`          |
 
 #### 4.2.2. Tabela `Pivot`
 
 Esta tabela registrará as informações de cada pivô de irrigação. Uma fazenda pode ter múltiplos pivôs (relação 1:N com `Farm`). Cada pivô pode ter múltiplos estados (`State`) e cada estado múltiplos ciclos (`Cycles`), formando uma hierarquia 1:N:N (Farm:Pivot:State:Cycles).
 
-| Campo | Tipo | Descrição | Exemplo |
-| :--- | :--- | :--- | :--- |
-| `id` | `UUID` | Identificador único do pivô. | `p1v2o3t4-a5b6...` |
-| `farmId` | `UUID` | Chave estrangeira para a fazenda associada. | `f1a2b3c4-d5e6...` |
-| `name` | `String` | Nome ou identificador do pivô. | `Pivô 1` |
-| `latitude` | `Float` | Latitude da localização do pivô. | `-23.5510` |
-| `longitude` | `Float` | Longitude da localização do pivô. | `-46.6340` |
-| `status` | `JSON` | Último pacote de status recebido do pivô (JSON). | `{...}` |
-| `bladeAt100`| `Float` | Lâmina de água irrigada com percentímetro a 100% (em mm). | `10.0` |
+| Campo        | Tipo     | Descrição                                                 | Exemplo            |
+| :----------- | :------- | :-------------------------------------------------------- | :----------------- |
+| `id`         | `UUID`   | Identificador único do pivô.                              | `p1v2o3t4-a5b6...` |
+| `farmId`     | `UUID`   | Chave estrangeira para a fazenda associada.               | `f1a2b3c4-d5e6...` |
+| `name`       | `String` | Nome ou identificador do pivô.                            | `Pivô 1`           |
+| `latitude`   | `Float`  | Latitude da localização do pivô.                          | `-23.5510`         |
+| `longitude`  | `Float`  | Longitude da localização do pivô.                         | `-46.6340`         |
+| `status`     | `JSON`   | Último pacote de status recebido do pivô (JSON).          | `{...}`            |
+| `bladeAt100` | `Float`  | Lâmina de água irrigada com percentímetro a 100% (em mm). | `10.0`             |
 
 #### 4.2.3. Tabela `State`
 
 Esta tabela registrará os estados principais de operação do pivô.
 
-| Campo | Tipo | Descrição | Exemplo |
-| :--- | :--- | :--- | :--- |
-| `id` | `UUID` | Identificador único do estado. | `a1b2c3d4-e5f6...` |
-| `pivotId` | `UUID` | Chave estrangeira para o pivô associado (`Pivot`). | `p1v2o3t4-a5b6...` |
-| `timestamp` | `DateTime` | Momento em que o estado foi registrado. | `2023-10-27T10:00:00Z` |
-| `isOn` | `Boolean` | Indica se o pivô estava ligado (`true`) ou desligado (`false`). | `true` |
-| `direction` | `String` | Direção de movimentação do pivô (ex: `clockwise`, `counter-clockwise`). | `clockwise` |
-| `isIrrigating`| `Boolean` | Indica se o pivô estava irrigando (`true`) ou apenas movimentando (`false`). | `true` |
+| Campo          | Tipo       | Descrição                                                                    | Exemplo                |
+| :------------- | :--------- | :--------------------------------------------------------------------------- | :--------------------- |
+| `id`           | `UUID`     | Identificador único do estado.                                               | `a1b2c3d4-e5f6...`     |
+| `pivotId`      | `UUID`     | Chave estrangeira para o pivô associado (`Pivot`).                           | `p1v2o3t4-a5b6...`     |
+| `timestamp`    | `DateTime` | Momento em que o estado foi registrado.                                      | `2023-10-27T10:00:00Z` |
+| `isOn`         | `Boolean`  | Indica se o pivô estava ligado (`true`) ou desligado (`false`).              | `true`                 |
+| `direction`    | `String`   | Direção de movimentação do pivô (ex: `clockwise`, `counter-clockwise`).      | `clockwise`            |
+| `isIrrigating` | `Boolean`  | Indica se o pivô estava irrigando (`true`) ou apenas movimentando (`false`). | `true`                 |
 
 #### 4.2.4. Tabela `Cycles`
 
 Esta tabela registrará os detalhes da movimentação e irrigação, relacionada à tabela `State` (1 `State` para N `Cycles`).
 
-| Campo | Tipo | Descrição | Exemplo |
-| :--- | :--- | :--- | :--- |
-| `id` | `UUID` | Identificador único do ciclo. | `1a2b3c4d-5e6f...` |
-| `stateId` | `UUID` | Chave estrangeira para o estado (`State`) associado. | `a1b2c3d4-e5f6...` |
-| `timestamp` | `DateTime` | Momento em que o dado do ciclo foi registrado. | `2023-10-27T10:00:05Z` |
-| `angle` | `Float` | Ângulo atual do pivô (em graus). | `45.5` |
-| `percentimeter`| `Float` | Leitura do percentímetro (ex: 0-100%). | `75.2` |
+| Campo           | Tipo       | Descrição                                            | Exemplo                |
+| :-------------- | :--------- | :--------------------------------------------------- | :--------------------- |
+| `id`            | `UUID`     | Identificador único do ciclo.                        | `1a2b3c4d-5e6f...`     |
+| `stateId`       | `UUID`     | Chave estrangeira para o estado (`State`) associado. | `a1b2c3d4-e5f6...`     |
+| `timestamp`     | `DateTime` | Momento em que o dado do ciclo foi registrado.       | `2023-10-27T10:00:05Z` |
+| `angle`         | `Float`    | Ângulo atual do pivô (em graus).                     | `45.5`                 |
+| `percentimeter` | `Float`    | Leitura do percentímetro (ex: 0-100%).               | `75.2`                 |
 
 ### 4.3. Integração com Previsão do Tempo (WeatherKit)
 
